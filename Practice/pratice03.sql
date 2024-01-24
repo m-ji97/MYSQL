@@ -5,12 +5,12 @@
 요.
 (106건)
 */
-select  employee_id,
-		first_name,
-		last_name,
-        department_name,
-        employee_id 
-from employees, departments
+select  e.employee_id,
+		e.first_name,
+		e.last_name,
+        d.department_name,
+        e.employee_id 
+from employees e, departments d
 order by department_name asc, employee_id desc;
 
 /*
@@ -25,10 +25,10 @@ select  employee_id,
 		first_name,
         salary,
         department_name,
-        job_title,
-        employee_id
-from employees, departments, jobs
-order by employee_id asc;
+        job_title
+from employees e
+join departments d on e.department_id = d.department_id
+join jobs j on e.job_id= j.job_id;
 
 /*
 문제2-1.
@@ -42,7 +42,8 @@ select  e.employee_id,
         e.employee_id
 from employees e
 left outer join departments d
-on e.department_id = d.department_id;
+on e.department_id = d.department_id
+join jobs j on e.job_id = j.job_id;
 
 /*
 문제3.
@@ -79,9 +80,10 @@ on d.location_id = l.location_id;
 (25건)
 */
 select  r.region_name,
-		c.countries
-from regions r, countries c
-order by region_name asc, countries desc;
+		c.country_name
+from regions r
+left join countries c
+on r.region_id = c.region_id;
 
 /*
 문제5.
@@ -93,9 +95,12 @@ order by region_name asc, countries desc;
 select  e.employee_id,
 		e.first_name,
         e.hire_date,
-		e.first_name as manager_name
-from employees e
-where hire_date;
+		e.first_name as manager_name,
+        p.hire_date
+from employees e 
+right join employees p
+on e.employee_id = p.manager_id
+and e.hire_date < p.hire_date;
 
 /*
 문제6.
@@ -111,10 +116,12 @@ select  c.country_name,
         l.location_id,
         d.department_name,
         d.department_id
-from departments d, locations l, countries c
-where d.location_id = l.location_id
-and l.country_id = c.country_id;
-
+from countries c
+right join locations l
+		on c.country_id = l.country_id
+join departments d
+  on l.location_id = d.location_id
+order by c.country_name asc;
 /*
 문제7.
 job_history 테이블은 과거의 담당업무의 데이터를 가지고 있다.
@@ -123,7 +130,15 @@ job_history 테이블은 과거의 담당업무의 데이터를 가지고 있다
 이름은 first_name과 last_name을 합쳐 출력합니다.
 (2건)
 */
-
+select  e.employee_id,
+		concat(e.first_name,' ',e.last_name),
+        j.job_id,
+        j.start_date,
+        j.end_date
+from employees e
+join job_history j
+on e.employee_id = j.employee_id
+and j.job_id= 'ac_account';
 /*
 문제8.
 각 부서(department)에 대해서 부서번호(department_id), 부서이름(department_name),
@@ -137,8 +152,14 @@ select  d.department_id,
         l.city,
         c.country_name,
         r.region_name
-from employees e, departments d, locations l, countries c, regions r
-where e.employee_id = d.department_id;
+from employees e join departments d
+	on e.employee_id = d.manager_id
+join locations l
+	on d.location_id = l.location_id
+join countries c
+	on c.country_id = l.country_id
+join regions r
+	on c.region_id = r.region_id;
 /*
 문제9.
 각 사원(employee)에 대해서 사번(employee_id), 이름(first_name), 부서명
@@ -147,12 +168,23 @@ where e.employee_id = d.department_id;
 매니저가 없는 Steven도 표시합니다.
 (106명)
 */
-select  e.employee_id,
+(select  e.employee_id,
 		e.first_name,
 		d.department_name,
-        e.first_name as manager_name
-from employees e, departments d
-where e.department_id = d.department_id;
+        case when e.manager_id = m.manager_id then e.first_name
+        else null
+        end manager
+from employees e join employees m left join departments d
+on e.employee_id = d.manager_id)
+union
+(select  e.employee_id,
+		e.first_name,
+		d.department_name,
+        case when e.manager_id = m.manager_id then e.first_name
+        else null
+        end manager
+from employees e join employees m left join departments d
+on e.employee_id = d.manager_id);
 
 /*
 문제9-1.
@@ -163,7 +195,9 @@ where e.department_id = d.department_id;
 select  e.employee_id,
 		e.first_name,
 		d.department_name,
-        e.first_name as manager_name
+        case when e.employee_id = d.manager_id then e.first_name
+        else null
+        end manager
 from employees e
 left join departments d
 on e.department_id = d.department_id;
