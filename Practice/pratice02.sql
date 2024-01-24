@@ -44,7 +44,6 @@ order by department_id desc;
 순서는 최저임금 내림차순, 평균임금(소수점 반올림), 오름차순 순입니다.
 (정렬순서는 최소임금 2500 구간일때 확인해볼 것)
 */
-<<<<<<< HEAD
 select  avg(salary),
 		max(salary),
         min(salary),
@@ -134,15 +133,7 @@ select date_format(min(hire_date), '%Y년 %m월 %d일 %a') 최고근속자입사
         else '일요일'
         end '요일'
 from employees;
-=======
 
-/*
-문제7.
-평균임금과 최저임금의 차이가 2000 미만인 부서(department_id), 평균임금, 최저임금
-그리고 (평균임금 – 최저임금)를 (평균임금 – 최저임금)의 내림차순으로 정렬해서 출력하세요.
-*/
-select*
-from em
 
 
 
@@ -188,4 +179,3 @@ select  hire_date,
         end optDate
 from employees
 order by hire_date asc;
->>>>>>> branch 'master' of https://github.com/m-ji97/MYSQL.git
